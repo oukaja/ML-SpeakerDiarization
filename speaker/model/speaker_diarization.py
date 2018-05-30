@@ -59,6 +59,7 @@ def speaker_diarization(fs, signal, mt_size=2.0, mt_step=0.2, st_win=0.05):
     cls = scipy.signal.medfilt(cls, 11)
     start = 0
     end = 0
+    speaker = []
     for i in range(1, len(cls)):
         if cls[i] == cls[i-1]:
             end = i
@@ -70,6 +71,11 @@ def speaker_diarization(fs, signal, mt_size=2.0, mt_step=0.2, st_win=0.05):
             else:
                 write_wav(os.path.join( "downloads/" + datetime.date.today().strftime("%B-%d-%Y-%H-%M-%S%p") + "/" + str(cls[i-1]) + "-" + str(start*mt_step) + "-" + str(end*mt_step) + ".wav"),
                           fs, signal[int(start * mt_step * fs):int(end * mt_step * fs)])
+            speaker.append({
+                'speaker_id': str(cls[i-1]+1),
+                'start_time': str(start*mt_step),
+                'end_time': str(end*mt_step)
+            })
             start = i
     shutil.make_archive("downloads/" + datetime.date.today().strftime("%B-%d-%Y-%H-%M-%S%p"), 'zip', "downloads/" + datetime.date.today().strftime("%B-%d-%Y-%H-%M-%S%p"))
-    return n_speakers_final, cls
+    return n_speakers_final, cls, speaker

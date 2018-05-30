@@ -51,19 +51,13 @@
                 <h6 class="gray">Note: The quality of the audio file such as noise,
                     <br/>number of speakers etc. affects the diarization process.
                     <br/><br/></h6>
-                    <input type="file" id="file-select" name="audio" class="btn btn-primary"/>
-                    <button type="submit" id="upload-button" class="btn btn-primary">
-                        Diarize
-                    </button>
-                    <br/><br/>
-                    <button v-show="!setNoOfSpeakers" v-on:click="setNoOfSpeakers = true" class="btn btn-sm"  type="button">Set number of Speakers.
-                    </button>
-                    <div v-show="setNoOfSpeakers">
-                        <h6>No. of Speakers</h6>
-                        <input type="number" min="1" value="1" class="text-center">
-                        <br/><br/>
-                        <button class="btn btn-sm" v-on:click="setNoOfSpeakers = false">Cancel</button>
-                    </div>
+                <input type="file" id="file-select" name="audio" class="btn btn-primary"/>
+                <button type="submit" id="upload-button" class="btn btn-primary">
+                    Diarize
+                </button>
+                <br/><br/>
+
+
             </form>
         </div>
     </div>
@@ -74,7 +68,6 @@
         <div class="col-12 text-center">
             <button class="btn btn-default" v-on:click="display = 'SUMMARY'">Summary</button>
             <button class="btn btn-default" v-on:click="display = 'EVALUATION'; app.setColors();">Evaluation</button>
-            <button class="btn btn-default" v-on:click="display = 'RESULTS';">Results</button>
             <br/><br/><br/>
         </div>
 
@@ -90,14 +83,8 @@
             <table id="results-table" cellpadding="5">
                 <tr>
                     <th class="text-center">Speaker ID</th>
-                    <th class="text-center">Phrase Said</th>
                     <th class="text-center">Start Time</th>
                     <th class="text-center">End Time</th>
-                    <th class="text-center" colspan="2">Identified speaker/s</th>
-                    <th class="text-center">Is Speaker Error?</th>
-                    <th class="text-center">Is Missed Speech?</th>
-                    <th class="text-center">Is False Alarm?</th>
-                    <th class="text-center">Is Valid Overlap?</th>
                 </tr>
                 <template v-for="item in aggregated_transcript">
                     <tr class="speaker-item margin-5">
@@ -105,53 +92,16 @@
                             <button :class="'btn speaker-color-' + item.speaker_id">Speaker {{ item.speaker_id }}
                             </button>
                         </td>
-                        <td class="text-center">{{ item.sentence }}</td>
                         <td class="text-center">{{ item.start_time | twoDecimalPlaces }}</td>
                         <td class="text-center">{{ item.end_time }}</td>
-                        <td v-if="item.isOverlapping" class="text-center">
-                            {{ item.speaker_ids[0] }}
-                        </td>
-                        <td v-if="item.isOverlapping" class="text-center">
-                            {{ item.speaker_ids[1] }}
-                        </td>
-                        <td v-else colspan="2" class="text-center">
-                            {{ item.speaker_id }}
-                        </td>
-                        <td class="text-center">
-                            <input type="checkbox" v-model="item.isSE"/>
-                        </td>
-                        <td class="text-center">
-                            <input type="checkbox" v-model="item.isMS"/>
-                        </td>
-                        <td class="text-center">
-                            <input type="checkbox" v-model="item.isFA"/>
-                        </td>
-                        <td v-if="item.isOverlapping" class="text-center">
-                            <input type="checkbox" v-model="item.isValidOverlap"/>
-                        </td>
                     </tr>
                 </template>
             </table>
         </div>
 
-        <div class="col-6 offset-3" v-if="display == 'RESULTS'">
-            <br/>
-            <h2>Result</h2>
-            <h1>{{ corrects }} / {{ aggregated_transcript.length }}</h1>
-        </div>
+
     </div>
 
-    <!-- <div class="col-md-5 text-center">
-        <h4>Conversation</h4>
-        <ul id="transcript-list">
-          <li class="convo-item" v-for="convo in aggregated_transcript">
-            <h6>Speaker {{ convo.speaker_id}}</h6>
-            <div :class="'convo' + convo.speaker_id">
-                {{ convo.sentence }}
-            </div>
-          </li>
-        </ul>
-    </div> -->
 </div>
 
 <div class="text-center">
@@ -164,7 +114,6 @@
 {% endraw %}
 <script>
 
-        // Declare Vue app
         var app = new Vue({
             el: '#app',
             data: {
@@ -173,7 +122,7 @@
                 hasResults: false,
                 setNoOfSpeakers: false,
                 temp: null,
-                aggregated_transcript: [],
+                aggregated: [],
                 display: 'SUMMARY'
             },
             methods: {
@@ -182,18 +131,18 @@
                         url: "./stubapi"
                     }).done((data) => {
                         this.diarized_info = data.result;
-                        this.transcript = data.result.transcript;
+                        this.sp = data.result.sp;
                         this.hasResults = true;
-                        this.aggregated_transcript = this.aggregate_transcript();
+                        this.aggregated = this.aggregate();
                         setTimeout(() => {
                             this.setColors();
                         }, 1000);
                     });
                 },
-                aggregate_transcript: function() {
+                aggregate: function() {
                     aggregated = [];
                     sentence = "";
-                    if (this.transcript.length > 0) {
+                    if (this.sp.length > 0) {
                         cur_speaker = this.transcript[0].speaker_id;
                         start_time = this.transcript[0].start_time;
                         end_time = this.transcript[0].end_time;
@@ -310,6 +259,7 @@
         $(document).ready(function() {
             app.init();
         });
+
 
 </script>
 </body>
