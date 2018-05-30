@@ -1,0 +1,10 @@
+/*
+elements.css
+styling for bare HTML elements (like H1, A, etc.)
+*/
+
+
+h1 {
+    font-size: 100px;
+    font-family: "Circular Bold";
+}

@@ -1,0 +1,12 @@
+/*
+objects.css
+class-based selectors which define undecorated design patterns, for example media object known from OOCSS
+*/
+#results-table th {
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+}
+
+.speaker-item button {
+    width: 200px;
+}

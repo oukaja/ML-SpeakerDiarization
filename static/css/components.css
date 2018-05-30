@@ -1,0 +1,42 @@
+/*
+components.css
+specific UI components. This is where majority of our work takes place and our UI components are often composed of Objects and Components
+*/
+
+.header {
+    height: 400px;
+    background-image: url('../images/waves.png');
+}
+
+#file-form {
+    margin: 50px;
+}
+
+#transcript-list {
+    max-height: 500px;
+    overflow-y: scroll;
+    margin: 20px;
+}
+
+
+.convo-item {
+    text-align: left;
+    list-style: none;
+    font-size: 30px;
+}
+
+.convo-item h6 {
+    color: gray;
+    margin-bottom: 0px;
+    margin-top: 20px;
+}
+
+.convo-item div {
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 30px;
+    padding: 5px 20px 5px;
+    max-width: 300px;
+    font-size: 20px;
+    color: black;
+}

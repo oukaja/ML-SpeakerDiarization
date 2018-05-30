@@ -1,0 +1,53 @@
+/*
+settings.css
+Used with preprocessors and contain font, colors definitions, etc.
+*/
+
+@font-face {
+    font-family: "Lato Black";
+    src: url('../fonts/Lato-Black.ttf');
+}
+
+@font-face {
+    font-family: "Lato Light";
+    src: url('../fonts/Lato-Light.ttf');
+}
+
+@font-face {
+    font-family: "Circular Bold";
+    src: url('../fonts/CircularStd-Bold.otf');
+}
+
+@font-face {
+    font-family: "Circular Medium";
+    src: url('../fonts/CircularStd-Medium.otf');
+}
+
+@font-face {
+    font-family: "Circular Book";
+    src: url('../fonts/CircularStd-Book.otf');
+}
+
+* {
+    font-family: "Circular Book";
+}
+
+.gradient-very-blue {
+    background: #0575E6;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #021B79, #0575E6);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #021B79, #0575E6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.gradient-blue {
+    background: #00c6ff;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #0072ff, #00c6ff);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #0072ff, #00c6ff); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.gray {
+    color: gray;
+}
+
+.white {
+    color: white;
+}

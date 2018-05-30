@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>oishi | Speaker Diarization</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+    <script src="{{ url_for('static', filename='jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='popper.js') }}"></script>
+    <script src="{{ url_for('static', filename='tooltip.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='dropzone.js')}}"></script>
+    <script src="{{ url_for('static', filename='vue.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/elements.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/generic.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/objects.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tools.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/utilities.css') }}">
+</head>
+<body >
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <br /><br /><br /><br />
+                <h3>About this Project</h3>
+                <br />
+                <img src="{{ url_for('static', filename='images/about/system_architecture.JPG') }}" height="500px"/>
+                <br /><br />
+
+                <div>
+                    <h2>Segmentation and Detection</h2>
+                    <h4 class="text-left">Speech Activity Detection</h4>
+                    <p class="text-left">
+                        This distinguishes the part of the recording with voiced against the silent segments.
+                    </p>
+
+                    <h4 class="text-left">Speech Segmentation</h4>
+                    <p class="text-left">
+                        The dataset is segmented using the standard 20ms with 10ms stride value.
+                    </p>
+
+                    <h4 class="text-left">Overlap Detection</h4>
+                    <p class="text-left">
+                        Using <strong>Root Mean Square Value (RMS)</strong> of the energy of speech segment.
+                        Overlapping Speech Segments will be detected.
+                    </p>
+
+                    <h4 class="text-left">Overlap Detection</h4>
+                    <p class="text-left">
+                        Using <strong>Root Mean Square Value (RMS)</strong> of the energy of speech segment.
+                        Overlapping Speech Segments will be detected.
+                    </p>
+                </div>
+
+                <br /><br /><br />
+            </div>
+        </div>
+    </div>
+</body>
+</html>
