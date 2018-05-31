@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>oishi | Speaker Diarization</title>
+    <title>ML project | Speaker Diarization</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
     <script src="{{ url_for('static', filename='jquery.js') }}"></script>
     <script src="{{ url_for('static', filename='popper.js') }}"></script>
@@ -11,7 +11,7 @@
     <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='dropzone.js')}}"></script>
     <script src="{{ url_for('static', filename='d3.js') }}"></script>
-    <script src="{{ url_for('static', filename='vue.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/elements.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/generic.css') }}">
@@ -22,12 +22,13 @@
 </head>
 <body>
 {% raw %}
+
 <div id="app" class="container-fluid">
     <div class="row gradient-blue white header">
 
         <div class="col-md-7 text-center">
             <br/><br/><br/>
-            <h1>oishi.</h1>
+            <h1>ML Project</h1>
             <h6>Speaker Diarization System</h6>
         </div>
         <div class="col-md-4">
@@ -45,14 +46,10 @@
     </div>
     <div class="row">
         <div class="col-md-12 text-center">
-
-            <form id="file-form" action="diarize" method="POST">
+            <form id="file-form" action="diarize" method="POST" enctype="multipart/form-data">
                 <h3>Upload .wav file</h3>
-                <h6 class="gray">Note: The quality of the audio file such as noise,
-                    <br/>number of speakers etc. affects the diarization process.
-                    <br/><br/></h6>
                 <input type="file" id="file-select" name="audio" class="btn btn-primary"/>
-                <button type="submit" id="upload-button" class="btn btn-primary">
+                <button type="button" @click="submitForm()" id="upload-button" class="btn btn-primary">
                     Diarize
                 </button>
                 <br/><br/>
@@ -62,205 +59,203 @@
         </div>
     </div>
 
-    <hr/>
 
-    <div class="row" v-show="hasResults">
-        <div class="col-12 text-center">
-            <button class="btn btn-default" v-on:click="display = 'SUMMARY'">Summary</button>
-            <button class="btn btn-default" v-on:click="display = 'EVALUATION'; app.setColors();">Evaluation</button>
-            <br/><br/><br/>
-        </div>
+    <div class="center row" v-show="hasResults">
+<div class="col-8 offset-2" >
+    <table id="results-table" cellpadding="5" class="table table-bordered table-striped text-center">
+        <tr>
+                <th class="text-center">Number of Speaker</th>
+            <th class="text-center">Download files</th>
+            
+        </tr>
+            <tr class="speaker-item margin-5">
+                    <td class="text-center">{{result.nspeaker}}</td>
+                <td class="text-center"><a v-bind:href="result.filename">Click here</a></td>
+           
+               
+            </tr>
+        
+    </table>
+</div>
 
-        <div class="col-6 offset-3" v-if="display == 'SUMMARY'">
-            <h3>Summary of Conversation</h3>
-            <template v-for="item in aggregated_transcript">
-                <h6>Speaker {{ item.speaker_id}}: {{ item.sentence }}</h6>
-            </template>
-        </div>
-
-        <div class="col-8 offset-2" v-if="display == 'EVALUATION'">
-            <h3>Diarization Result Table</h3>
-            <table id="results-table" cellpadding="5">
-                <tr>
-                    <th class="text-center">Speaker ID</th>
-                    <th class="text-center">Start Time</th>
-                    <th class="text-center">End Time</th>
-                </tr>
-                <template v-for="item in aggregated_transcript">
-                    <tr class="speaker-item margin-5">
-                        <td>
-                            <button :class="'btn speaker-color-' + item.speaker_id">Speaker {{ item.speaker_id }}
-                            </button>
-                        </td>
-                        <td class="text-center">{{ item.start_time | twoDecimalPlaces }}</td>
-                        <td class="text-center">{{ item.end_time }}</td>
-                    </tr>
-                </template>
-            </table>
-        </div>
-
-
-    </div>
-
+<div class="col-8 offset-2" >
+    <h3>Diarization Result Table</h3>
+    <table id="results-table" cellpadding="5" class="table table-bordered table-striped text-center">
+        <tr>
+            <th class="text-center">Speaker ID</th>
+            <th class="text-center">Start Time</th>
+            <th class="text-center">End Time</th>
+        </tr>
+        <template v-for="item in result.sp">
+            <tr class="speaker-item margin-5">
+               
+                <td class="text-center">{{ item.speaker_id  | decimalToInt }}</td>
+                <td class="text-center">{{ item.start_time | twoDecimalPlaces}}</td>
+                <td class="text-center">{{ item.end_time | twoDecimalPlaces}}</td>
+               
+            </tr>
+        </template>
+    </table>
+</div>
 </div>
 
 <div class="text-center">
     <br/>
     <hr/>
-    <h6>A Project by Ariel Conde and John Daryll Moya (2018)</h6>
+    <h6>Machine Learning Project by EL-HAFED Naima & OUKAJA Youssef Mehdi (2018)</h6>
     <br/>
 </div>
 </div>
 {% endraw %}
 <script>
-
-        var app = new Vue({
+       var app = new Vue({
             el: '#app',
             data: {
+                result:
+                {
+                    sp:[],
+                    filename:"",
+                    nspeaker:""
+                },
                 diarized_info: null,
-                transcript: [],
+                
                 hasResults: false,
-                setNoOfSpeakers: false,
                 temp: null,
-                aggregated: [],
                 display: 'SUMMARY'
             },
             methods: {
-                init: function() {
-                    $.ajax({
-                        url: "./stubapi"
-                    }).done((data) => {
-                        this.diarized_info = data.result;
-                        this.sp = data.result.sp;
-                        this.hasResults = true;
-                        this.aggregated = this.aggregate();
-                        setTimeout(() => {
-                            this.setColors();
-                        }, 1000);
-                    });
-                },
-                aggregate: function() {
-                    aggregated = [];
-                    sentence = "";
-                    if (this.sp.length > 0) {
-                        cur_speaker = this.transcript[0].speaker_id;
-                        start_time = this.transcript[0].start_time;
-                        end_time = this.transcript[0].end_time;
-                        this.transcript.forEach((convo) => {
+                submitForm: function(){
+                console.log($('#file-form'))
 
-                            if (convo.is_overlapping) {
-                                // Push whatever is in the current
-                                aggregated.push({ sentence: sentence, speaker_id: cur_speaker,
-                                    start_time: start_time, end_time: end_time, isCorrect: false});
+                var formData = new FormData($('#file-form')[0]);
+                $.ajax({
+       url: './diarize',
+       type: 'POST',
+       data: formData,
+       async: false,
+       cache: false,
+       contentType: false,
+      // enctype: 'multipart/form-data',
+       processData: false
+   }).done(function(data) {
+    console.log(data);
+    this.hasResults=true;
+    this.result=data.result;
+}.bind(this))
+                } 
+                // init: function() {
+                //     $.ajax({
+                //         url: "./diarize"
+                //     }).done((data) => {
+                //         this.diarized_info = data.result;
+                //         this.sp = data.result.sp;
+                //         this.hasResults = true;
+                //         this.NoOfSpeakers= data.result.nspeaker;
+                //         this.filename = data.result.filename;
+                //         setTimeout(() => {
+                //             this.setColors();
+                //         }, 1000);
+                //     });
+                // },
+                // aggregate: function() {
+                //     aggregated = [];
+                //     if (this.sp.length > 0) {
+                //         this.sp.forEach((convo) => {
 
-                                // Then push the overlapping
-                                aggregated.push({
-                                    sentence: convo.word,
-                                    isOverlapping: true,
-                                    speaker_ids: convo.speaker_ids,
-                                    hasWord: convo.has_word,
-                                    word: convo.word,
-                                    start_time: convo.start_time,
-                                    end_time: convo.end_time,
-                                    isCorrect: false
-                                });
-                            }
+                //                 aggregated.push({
+                //                     speaker_id: convo.speaker_id,
+                //                     start_time: convo.start_time,
+                //                     end_time: convo.end_time,
+                //                 });
+                //             });
+                //         }
 
-                            if (cur_speaker == convo.speaker_id) {
-                                sentence += " " + convo.word;
-                                end_time = convo.end_time;
-                            } else {
-                                aggregated.push({ sentence: sentence, speaker_id: cur_speaker,
-                                    start_time: start_time, end_time: end_time, isCorrect: false});
-                                sentence = convo.word;
-                                start_time = convo.start_time;
-                                cur_speaker = convo.speaker_id;
-                            }
-                        });
-                    }
-                    return aggregated;
-                },
-                setColors: function() {
-                    let colors = ['#5aa4ff', '#0024ad'];
-                    colors.forEach((color, i) => {
-                        d3.selectAll(".speaker-color-" + i).style("background-color", colors[i]);
-                    });
-                }
-            },
+                        
+                   
+                //     return aggregated;
+                // },
+                // setColors: function() {
+                //     let colors = ['#5aa4ff', '#0024ad'];
+                //     colors.forEach((color, i) => {
+                //         d3.selectAll(".speaker-color-" + i).style("background-color", colors[i]);
+                //     });
+                // }
+             },
             filters: {
                 twoDecimalPlaces: function(value) {
                     return parseFloat(value).toFixed(2);
+                },
+                decimalToInt: function(value){
+                    return parseInt(value);
                 }
             },
             computed: {
-                corrects: function() {
+/*                 corrects: function() {
                     return this.aggregated_transcript.filter(item => item.isFA).length;
-                }
+                } */
             },
 
         });
 
-        var form = document.getElementById('file-form');
-        var fileSelect = document.getElementById('file-select');
-        var uploadButton = document.getElementById('upload-button');
+        // var form = document.getElementById('file-form');
+        // var fileSelect = document.getElementById('file-select');
+        // var uploadButton = document.getElementById('upload-button');
 
-        form.onsubmit = function(event) {
-            event.preventDefault();
+        // form.onsubmit = function(event) {
+        //     event.preventDefault();
 
-            // Update button text
-            uploadButton.innerHTML = 'Processing...';
+        //     // Update button text
+        //     uploadButton.innerHTML = 'Processing...';
 
-            //
-            handleSubmit();
-        }
+        //     //
+        //     handleSubmit();
+        // }
 
-        function handleSubmit() {
-            // Retrieve the files in form
-            var files = fileSelect.files;
+        // function handleSubmit() {
+        //     // Retrieve the files in form
+        //     var files = fileSelect.files;
 
-            // Create FormData object
-            // This is used to construct key/value pairs
-            // which form the data payload for the AJAX request
-            var formData = new FormData();
+        //     // Create FormData object
+        //     // This is used to construct key/value pairs
+        //     // which form the data payload for the AJAX request
+        //     var formData = new FormData();
         
-            file = files[0]; // There can be multiple files in the form
+        //     file = files[0]; // There can be multiple files in the form
 
-            // Can perform file checking here
-            //
+        //     // Can perform file checking here
+        //     //
 
-            // Add the file to the payload object
-            formData.append('audio', file, file.name);
+        //     // Add the file to the payload object
+        //     formData.append('audio', file, file.name);
 
-            // Set up the request
-            var xhr = new XMLHttpRequest();
+        //     // Set up the request
+        //     var xhr = new XMLHttpRequest();
 
-            // Open the connection
-            // method, url, isAsynchronous
-            xhr.open('POST', 'diarize', true);
-            xhr.responseType = 'json';
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    app.transcript = xhr.response.result; // Response carries the array of converstation
-                    app.hasResults = true;
-                    uploadButton.innerHTML = 'Upload';
-                    console.log(xhr.response.result);
-                } else {
-                    alert("An error occured.");
-                }
-            };
+        //     // Open the connection
+        //     // method, url, isAsynchronous
+        //     xhr.open('POST', 'diarize', true);
+        //     xhr.responseType = 'json';
+        //     xhr.onload = function() {
+        //         if (xhr.status === 200) {
+        //             app.transcript = xhr.response.result; // Response carries the array of converstation
+        //             app.hasResults = true;
+        //             uploadButton.innerHTML = 'Upload';
+        //             console.log(xhr.response.result);
+        //         } else {
+        //             alert("An error occured.");
+        //         }
+        //     };
 
-            xhr.send(formData);
-        }
+        //     xhr.send(formData);
+        // }
 
-        function design() {
-            d3.selectAll(".convo-1").style("color", "white");
-        }
+        // function design() {
+        //     d3.selectAll(".convo-1").style("color", "white");
+        // }
 
-        $(document).ready(function() {
-            app.init();
-        });
-
-
+        // $(document).ready(function() {
+        //     app.init();
+        // });
 </script>
 </body>
 </html>

@@ -4,10 +4,14 @@ from speaker.utils.utils import read_wav
 
 def todiarize(input):
     fs, signal = read_wav(input)
-    n, cls, sp = speaker_diarization(fs, signal)
+    n, cls, sp, z = speaker_diarization(fs, signal)
     return {
-        'filename': input,
+        'filename': z,
         'nspeaker': n,
         'sp': sp
     }
+
+
+# if __name__=="__main__":
+#    todiarize("C:\\Users\\OUKAJA\\Desktop\\oishi-master\\uploads\\1.wav")
 

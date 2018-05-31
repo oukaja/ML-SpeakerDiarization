@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, current_app, send_from_directory
 from werkzeug.utils import secure_filename
 import datetime
 import os
@@ -29,6 +29,7 @@ def about():
 
 @app.route('/diarize', methods=['POST', 'GET'])
 def diarize_api():
+    #return jsonify(request.files)
     if 'audio' not in request.files:
         return jsonify({'message': 'No file upload.'})
     file = request.files['audio']
@@ -39,11 +40,22 @@ def diarize_api():
         if not os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'] + "/" + datetime.date.today().strftime("%B-%d-%Y-%H-%M-%S%p"))):
             os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'] + "/" + datetime.date.today().strftime("%B-%d-%Y-%H-%M-%S%p")), 777)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'] + "/" + datetime.date.today().strftime("%B-%d-%Y-%H-%M-%S%p") + "/", filename))
-        todiarize(os.path.join(app.config['UPLOAD_FOLDER'] + "/" + datetime.date.today().strftime("%B-%d-%Y-%H-%M-%S%p") + "/", filename))
-        return jsonify({'result': "Result"})
+        #print({'result': todiarize(os.path.join(app.config['UPLOAD_FOLDER'] + "/" + datetime.date.today().strftime("%B-%d-%Y-%H-%M-%S%p") + "/", filename))})
+        return jsonify({'result': todiarize(os.path.join(app.config['UPLOAD_FOLDER'] + "/" + datetime.date.today().strftime("%B-%d-%Y-%H-%M-%S%p") + "/", filename))})
     else:
         return jsonify({'message': 'An error occured'})
 
+"""
+@app.route('/diarizedemo')
+def diarize_demo():
+    print({'result': todiarize(os.path.join(app.config['UPLOAD_FOLDER'] + "/" ,"2.wav"))})
+    return jsonify({'message': 'An error occured'}) 
+"""
+
+@app.route('/<path:filename>', methods=['GET', 'POST'])
+def download(filename):
+    dir = current_app.root_path
+    return send_from_directory(directory=dir, filename=filename)
 
 if __name__ == "__main__":
     app.run(debug=True)

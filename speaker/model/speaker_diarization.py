@@ -78,4 +78,5 @@ def speaker_diarization(fs, signal, mt_size=2.0, mt_step=0.2, st_win=0.05):
             })
             start = i
     shutil.make_archive("downloads/" + datetime.date.today().strftime("%B-%d-%Y-%H-%M-%S%p"), 'zip', "downloads/" + datetime.date.today().strftime("%B-%d-%Y-%H-%M-%S%p"))
-    return n_speakers_final, cls, speaker
+    z = "downloads/" + datetime.date.today().strftime("%B-%d-%Y-%H-%M-%S%p") +'.zip'
+    return n_speakers_final, cls, speaker, z
